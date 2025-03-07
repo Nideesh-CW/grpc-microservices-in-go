@@ -19,8 +19,8 @@ jobs:
     steps:
       - id: go-cache-paths
         run: |
-          echo "::set-output name=go-build::$(go env GOCACHE)"
-          echo "::set-output name=go-mod::$(go env GOMODCACHE)"
+          echo "GO_BUILD=$(go env GOCACHE)" >> $GITHUB_ENV
+          echo "GO_MOD=$(go env GOMODCACHE)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
 
@@ -35,16 +35,14 @@ jobs:
           go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
-      # Go build cache
+      # Go Build Cache
       - name: Go Build Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
-          path: ${{ steps.go-cache-paths.outputs.go-build }}
-          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+          path: ${{ env.GO_BUILD }}
+          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum', '**/go.mod') }}
 
       - name: Run
         run: |
           cd "$(find . -name listing_${{ github.event.inputs.listing }})"
-          ./run.sh ${{ env.GITHUB_USERNAME }} ${{ env.GITHUB_EMAIL }} 
-          
-
+          ./run.sh ${{ env.GITHUB_USERNAME }} ${{ env.GITHUB_EMAIL }}

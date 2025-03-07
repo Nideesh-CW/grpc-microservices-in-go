@@ -16,6 +16,7 @@ jobs:
   execute-listing:
     name: "Executing listing ${{ github.event.inputs.listing }}"
     runs-on: ubuntu-latest
+
     steps:
       - id: go-cache-paths
         run: |
@@ -24,13 +25,15 @@ jobs:
 
       - uses: actions/checkout@v2
 
-      - name: Install Go
+      # Install Go 1.21
+      - name: Install Go 1.21
         uses: actions/setup-go@v2
         with:
-          go-version: 1.17
+          go-version: 1.21
 
       - name: Install Protoc Dependencies
         run: |
+          sudo apt-get update -y
           sudo apt-get install -y protobuf-compiler golang-goprotobuf-dev
           go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
